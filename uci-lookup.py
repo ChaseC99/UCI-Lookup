@@ -93,35 +93,58 @@ def findPerson(search: str) -> Person:
     return person
     
 
-def singleSearch():
-    print(option1[4:])
-    print(findPerson(input("  Search: ")))
 
+'''
+Multi Search
+    Given a list of search queries, print the results
+'''
 def multiSearch(searches: [str]):
     print("Printing search results. . .")
     print("search,name,email")
     for search in searches:
         print(search + "," + str(findPerson(search)))
 
-
+'''
+[1] Single Search
+    Look up one person
+'''
+def singleSearch():
+    print(option1[4:])
+    print(findPerson(input("  Search: ")))
+    
+'''
+[2] Multi Searches
+    Look up multiple people at a time
+'''
 def multiSearchFromInput():
     print(option2[4:])
     print("Input each search on a new line. Enter 'done' when you are finished")
+
+    # Read input for search queries
     searches = []
     search = input()
     while search != "done":
         searches.append(search)
         search = input()
+        
     print()
     multiSearch(searches)
-    
+
+'''
+[3] Multi Search From File
+    Look up multiple people from a file with a search query on each line
+'''
 def multiSearchFromFile():
     print(option3[4:])
     fileName = input("  Enter a file name: ")
+
     file = open(fileName)
     searches = [line.strip() for line in file]
+
     print()
     multiSearch(searches)
+
+
 
 if __name__ == "__main__":
     # Print welcome message
@@ -131,7 +154,7 @@ if __name__ == "__main__":
     # Instructions for UI
     option1 = '[1] Single Search - Look up one person'
     option2 = '[2] Multi Searches - Look up multiple people at a time'
-    option3 = '[3] Multi Search From File - Look up multiple people from a file with a search on each line'
+    option3 = '[3] Multi Search From File - Look up multiple people from a file with a search querey on each line'
     optionh = '[h] Help - Display these instructions'
     optionq = '[q] Quit - End program'
     instructions = "Select one of the following options:\n  " + "\n  ".join([option1, option2, option3, optionh, optionq])
