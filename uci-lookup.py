@@ -113,7 +113,7 @@ def singleSearch():
     print(findPerson(input("  Search: ")))
     
 '''
-[2] Multi Searches
+[2] Multi Search
     Look up multiple people at a time
 '''
 def multiSearchFromInput():
@@ -153,7 +153,7 @@ if __name__ == "__main__":
     
     # Instructions for UI
     option1 = '[1] Single Search - Look up one person'
-    option2 = '[2] Multi Searches - Look up multiple people at a time'
+    option2 = '[2] Multi Search - Look up multiple people at a time'
     option3 = '[3] Multi Search From File - Look up multiple people from a file with a search querey on each line'
     optionh = '[h] Help - Display these instructions'
     optionq = '[q] Quit - End program'
