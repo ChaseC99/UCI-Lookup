@@ -66,7 +66,8 @@ def vcardToPerson(vcardText: str) -> Person:
     vcard = dict()
     for line in vcardLines:
         lineData = line.split(':',1)
-        vcard[lineData[0].strip()] = lineData[1].strip()
+        if len(lineData) == 2:
+            vcard[lineData[0].strip()] = lineData[1].strip()
 
     return Person(vcard["FN"], vcard["EMAIL"])
 
@@ -94,7 +95,4 @@ def findPerson(search: str) -> Person:
 
 
 if __name__ == "__main__":
-    searchRequest = input("Search: ")
-    person = findPerson(searchRequest)
-    print(person)
-    
+    print(findPerson(input("search: ")))
