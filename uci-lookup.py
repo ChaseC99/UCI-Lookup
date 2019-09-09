@@ -101,8 +101,44 @@ Multi Search
 def multiSearch(searches: [str]):
     print("Printing search results. . .")
     print("search,name,email")
+    results = []
     for search in searches:
-        print(search + "," + str(findPerson(search)))
+        results.append(findPerson(search))
+        print(search + "," + str(results[-1]))
+
+    print()
+
+    option1 = '[1] Display all info'
+    option2 = '[2] Display emails only'
+    option3 = '[3] Display names only'
+    optionh = '[h] Help - Display these instructions'
+    optiond = '[d] Done - Enter a new search'
+
+    instructions = "How would you like to display the information?\n    " + "\n    ".join([option1, option2, option3, optionh, optiond])
+        
+    print(instructions)
+    
+    while True:
+        response = input("  Enter display command: ")
+
+        if response == '1':
+            print("Printing everything. . .")
+            for result in results: print(str(result))
+        elif response == '2':
+            print("Printing emails. . .")
+            for result in results:
+                print(str(result.email)) if type(result) == Person else print(result)
+        elif response == '3':
+            print("Printing names. . .")
+            for result in results:
+                print(str(result.name)) if type(result) == Person else print(result)
+        elif response == 'h':
+            print(instructions)
+        elif response == 'd':
+            break
+        else:
+            print("INVALID COMMAND")
+            print("  Type 'h' for a list of valid commands")
 
 '''
 [1] Single Search
@@ -124,7 +160,7 @@ def multiSearchFromInput():
     searches = []
     search = input()
     while search != "done":
-        searches.append(search)
+        searches.append(search.split('@')[0])
         search = input()
         
     print()
