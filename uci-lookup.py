@@ -9,12 +9,13 @@ Person
         email - str
 '''
 class Person:
-    def __init__(self, name, email):
+    def __init__(self, name, email, major):
         self.name = name
         self.email = email
+        self.major = major
 
     def __str__(self):
-        return self.name + ',' + self.email
+        return self.name + ',' + self.email + ',' + self.major
     
 
 '''
@@ -69,7 +70,7 @@ def vcardToPerson(vcardText: str) -> Person:
         if len(lineData) == 2:
             vcard[lineData[0].strip()] = lineData[1].strip()
 
-    return Person(vcard["FN"], vcard["EMAIL"])
+    return Person(vcard["FN"], vcard["EMAIL"], vcard['TITLE'])
 
 
 '''
@@ -111,10 +112,11 @@ def multiSearch(searches: [str]):
     option1 = '[1] Display all info'
     option2 = '[2] Display emails only'
     option3 = '[3] Display names only'
+    option4 = '[4] Display majors only'
     optionh = '[h] Help - Display these instructions'
     optiond = '[d] Done - Enter a new search'
 
-    instructions = "How would you like to display the information?\n    " + "\n    ".join([option1, option2, option3, optionh, optiond])
+    instructions = "How would you like to display the information?\n    " + "\n    ".join([option1, option2, option3, option4, optionh, optiond])
         
     print(instructions)
     
@@ -132,6 +134,10 @@ def multiSearch(searches: [str]):
             print("Printing names. . .")
             for result in results:
                 print(str(result.name)) if type(result) == Person else print(result)
+        elif response == '4':
+            print("Printing majors. . .")
+            for result in results:
+                print(str(result.major)) if type(result) == Person else print(result)
         elif response == 'h':
             print(instructions)
         elif response == 'd':
