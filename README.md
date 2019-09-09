@@ -7,5 +7,5 @@ Look up options include:
     [3] Multi Search From File - Look up multiple people from a file with a search querey on each line
     
 ## Dependencies
-`requests`  
-`lxml` from `html`
+- [`requests`](https://pypi.org/project/requests/)  
+- [`lxml` from `html`](https://lxml.de/)
