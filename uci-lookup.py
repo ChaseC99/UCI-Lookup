@@ -21,13 +21,14 @@ class Person:
 '''
 Search Directory
     Given a search query, this function returns the html generated for the search
+    NOTE: This is currently broken, since the results are loaded with javascript 
     post: returns html search results
 '''
 def searchDirectory(search: str) -> str:
     # Construct URL
     search = search.replace(" ","+").replace(",", "%2C")
-    urlBase = "https://directory.uci.edu/index.php?basic_keywords="
-    otherParams = "&modifier=Starts+With&basic_submit=Search&checkbox_employees=Employees&checkbox_students=Students&checkbox_departments=Departments&form_type=basic_search"
+    urlBase = "https://directory.uci.edu/query/"
+    otherParams = "?filter=all"
     url = urlBase + search + otherParams
 
     # Send search to uci directory
@@ -37,21 +38,14 @@ def searchDirectory(search: str) -> str:
 
 '''
 Get Vcard
-    Given html search results, this functions pulls out the vcard
+    Given a UCInetID, this functions returns the vcard
     post: returns str vcard
 '''
-def getVcard(htmlText: str) -> str:
-    # Pull vcard link from html
-    tree = html.fromstring(htmlText)
-    results = tree.xpath("//a[contains(@href, '&form_type=vcard')]/@href")
-
-    # Assert that vcard for that search exists
-    if len(results) == 0:
-        return None
-
+def getVcard(uci_net_id: str) -> str:
     # Send request for vcard
-    vcardUrl = 'https://directory.uci.edu/' + results[0]
+    vcardUrl = 'https://directory.uci.edu/people/' + uci_net_id + "/vcard"
     vcard = requests.get(vcardUrl)
+    
     return vcard.text
 
 
@@ -68,8 +62,7 @@ def vcardToPerson(vcardText: str) -> Person:
     for line in vcardLines:
         lineData = line.split(':',1)
         if len(lineData) == 2:
-            vcard[lineData[0].strip()] = lineData[1].strip()
-
+            vcard[lineData[0].split(';')[0].strip()] = lineData[1].strip()
     return Person(vcard["FN"], vcard["EMAIL"], vcard['TITLE'])
 
 
@@ -78,11 +71,8 @@ Find Person
     Given a search, this function returns a Person object or None if person not found
 '''
 def findPerson(search: str) -> Person:
-    # Get HTML from search
-    htmlResult = searchDirectory(search)
-
     # Get vcard
-    vcard = getVcard(htmlResult)
+    vcard = getVcard(search)
 
     # Assert that vcard exists
     if vcard == None:

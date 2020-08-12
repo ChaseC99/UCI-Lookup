@@ -1,5 +1,6 @@
 # UCI-Lookup
-Tool to look up multiple UCI students at a time
+Tool to look up multiple UCI students at a time.
+Currently, you can only search for a student by UCInetID.
 
 Look up options include:  
     [1] Single Search - Look up one person  
@@ -9,3 +10,7 @@ Look up options include:
 ## Dependencies
 - [`requests`](https://pypi.org/project/requests/)  
 - [`lxml` from `html`](https://lxml.de/)
+
+## UCI Privacy Policy
+This tool may only be used in accordance with the [UCI Directory](https://directory.uci.edu/) Privacy Policy. 
+> This directory has been compiled for the use and convenience of the faculty, staff, students, and affiliates of the University of California, Irvine and others dealing with UC Irvine. It is the property of the Regents of the University of California. In accordance with the California Information Practices Act, neither this directory nor the information contained herein may be used, rented, distributed, or sold for commercial purposes. Compilation or redistribution of information from this directory is strictly forbidden.
