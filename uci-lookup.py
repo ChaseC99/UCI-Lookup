@@ -46,7 +46,10 @@ def getVcard(uci_net_id: str) -> str:
     vcardUrl = 'https://directory.uci.edu/people/' + uci_net_id + "/vcard"
     vcard = requests.get(vcardUrl)
     
-    return vcard.text
+    # Hack(chase): verify that this is vcard by checking the first letter
+    #   It should be "B" for "BEGIN:VCARD"    
+    if vcard.text[0] == 'B': return vcard.text
+    else: return None
 
 
 '''
@@ -63,7 +66,11 @@ def vcardToPerson(vcardText: str) -> Person:
         lineData = line.split(':',1)
         if len(lineData) == 2:
             vcard[lineData[0].split(';')[0].strip()] = lineData[1].strip()
-    return Person(vcard["FN"], vcard["EMAIL"], vcard['TITLE'])
+    
+    full_name = vcard["FN"] if "FN" in vcard else ""
+    email = vcard["EMAIL"] if "EMAIL" in vcard else ""
+    title = vcard["TITLE"] if "TITLE" in vcard else ""
+    return Person(full_name, email, title)
 
 
 '''
