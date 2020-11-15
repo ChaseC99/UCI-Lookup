@@ -1,6 +1,7 @@
 # UCI-Lookup
 Tool to look up multiple UCI students at a time.
-Currently, you can only search for a student by UCInetID.
+Currently, you can only search for a student by email or UCInetID.  
+NOTE: you must be on the UCI VPN for UCI-Lookup to work
 
 Look up options include:  
     [1] Single Search - Look up one person  
@@ -8,8 +9,7 @@ Look up options include:
     [3] Multi Search From File - Look up multiple people from a file with a search querey on each line
     
 ## Dependencies
-- [`requests`](https://pypi.org/project/requests/)  
-- [`lxml` from `html`](https://lxml.de/)
+- [`ldap3`](https://pypi.org/project/ldap3/)  
 
 ## UCI Privacy Policy
 This tool may only be used in accordance with the [UCI Directory](https://directory.uci.edu/) Privacy Policy. 

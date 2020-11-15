@@ -1,6 +1,7 @@
-import requests
-from lxml import html
+# IMPORTS
+from ldap3 import Connection
 
+# CLASSES
 '''
 Person
     This class represents a person at UCI.
@@ -9,102 +10,117 @@ Person
         email - str
 '''
 class Person:
-    def __init__(self, name, email, major):
+    def __init__(self, name, netID, email, major):
         self.name = name
+        self.netID = netID
         self.email = email
         self.major = major
-
+        
     def __str__(self):
-        return self.name + ',' + self.email + ',' + self.major
+        return self.netID + ',' + self.name + ',' + self.email + ',' + self.major
     
 
+# INFORMATION RETRIEVAL
+#   The following functions are how we retrieve individual's information
+#   from OIT's LDAP Directory Information 
 '''
-Search Directory
-    Given a search query, this function returns the html generated for the search
-    NOTE: This is currently broken, since the results are loaded with javascript 
-    post: returns html search results
+Entry To Person
+    LDAP3 returns an entry object with lots of information on the individual.
+    This function takes that information and converts it to a Person object.
+    Return a Person
 '''
-def searchDirectory(search: str) -> str:
-    # Construct URL
-    search = search.replace(" ","+").replace(",", "%2C")
-    urlBase = "https://directory.uci.edu/query/"
-    otherParams = "?filter=all"
-    url = urlBase + search + otherParams
-
-    # Send search to uci directory
-    htmlResult = requests.get(url)
-    return htmlResult.text
-
-
-'''
-Get Vcard
-    Given a UCInetID, this functions returns the vcard
-    post: returns str vcard
-'''
-def getVcard(uci_net_id: str) -> str:
-    # Send request for vcard
-    vcardUrl = 'https://directory.uci.edu/people/' + uci_net_id + "/vcard"
-    vcard = requests.get(vcardUrl)
+def _entryToPerson(entry) -> Person:
+    # Get Name
+    if 'displayName' in entry: name = str(entry['displayName'])
+    else: name = ''
     
-    # Hack(chase): verify that this is vcard by checking the first letter
-    #   It should be "B" for "BEGIN:VCARD"    
-    if vcard.text[0] == 'B': return vcard.text
-    else: return None
+    # Get UCINetID
+    if 'uid' in entry: netID = str(entry['uid'])
+    else: netID = ''
 
+    # Get Email
+    if 'mail' in entry: email = str(entry['mail'])
+    else: email = ''
 
-'''
-Vcard to Person
-    Converts a vcard to a Person object
-    post: returns a Person object or None if vcard doesn't exist
-'''
-def vcardToPerson(vcardText: str) -> Person:
-    vcardLines = vcardText.split('\n')
-
-    # Convert response to a dict
-    vcard = dict()
-    for line in vcardLines:
-        lineData = line.split(':',1)
-        if len(lineData) == 2:
-            vcard[lineData[0].split(';')[0].strip()] = lineData[1].strip()
+    # Get Major
+    if 'major' in entry: major = str(entry['major'])
+    else: major = ''        
     
-    full_name = vcard["FN"] if "FN" in vcard else ""
-    email = vcard["EMAIL"] if "EMAIL" in vcard else ""
-    title = vcard["TITLE"] if "TITLE" in vcard else ""
-    return Person(full_name, email, title)
+    return Person(name, netID, email, major)
+
+
+'''
+Establish Connection
+    Set up a connection with LDAP3
+    Return a Connection object
+'''
+def _establishConnection():
+    return Connection("ldap://ldap.oit.uci.edu", auto_bind=True)
 
 
 '''
 Find Person
-    Given a search, this function returns a Person object or None if person not found
+    Given a single UCINetID, return the assosiated person
+    If no results are found, return None
 '''
-def findPerson(search: str) -> Person:
-    # Get vcard
-    vcard = getVcard(search)
+def findPerson(netID: str) -> Person:
+    conn = _establishConnection()
+    conn.search("dc=uci,dc=edu", f"(uid={netID})", attributes=['*'])
 
-    # Assert that vcard exists
-    if vcard == None:
-        return None
-
-    # Convert vcard to Person
-    person = vcardToPerson(vcard)
-
-    return person
+    if conn.entries:
+        return _entryToPerson(conn.entries[0])
     
+    return None
 
 
+'''
+Find People
+    Given a list of UCINetIDs, return the available person objects
+'''
+def findPeople(netIDs: [str]) -> Person:
+    conn = _establishConnection()
+    # To search for multiple people, we structure our query like so
+    #   (|(uid=person1)(uid=person2)(uid=person3))
+    search_query = '(|' + ''.join(['(uid='+netID+')' for netID in netIDs]) + ')'
+    conn.search("dc=uci,dc=edu", search_query, attributes=['*'])
+
+    # Convert results to Person objects
+    results = []
+    for entry in conn.entries:
+        results.append(_entryToPerson(entry))
+
+    # Sort Person objects by NetID
+    results.sort(key=lambda person: person.netID)
+
+    return results
+
+
+# CLI INTERFACE
+#   The following code provides a CLI interface for the user to access
+#   information from OIT's LDAP Directory Information 
 '''
 Multi Search
     Given a list of search queries, print the results
 '''
 def multiSearch(searches: [str]):
+    print("Loading results. . .")
+    results = findPeople(searches)
+    
     print("Printing search results. . .")
-    print("search,name,email")
-    results = []
-    for search in searches:
-        results.append(findPerson(search))
-        print(search + "," + str(results[-1]))
-
+    found_netIDs = set()
+    for result in results:
+        print(str(result))
+        found_netIDs.add(result.netID)
     print()
+
+    missing_netIDs = set()
+    for search in searches:
+        if not search in found_netIDs:
+            missing_netIDs.add(search)
+    
+    if missing_netIDs:
+        print("Unable to find the following searches:", missing_netIDs)
+        print()
 
     option1 = '[1] Display all info'
     option2 = '[2] Display emails only'
@@ -118,6 +134,7 @@ def multiSearch(searches: [str]):
     print(instructions)
     
     while True:
+        print()
         response = input("  Enter display command: ")
 
         if response == '1':
@@ -149,7 +166,7 @@ def multiSearch(searches: [str]):
 '''
 def singleSearch():
     print(option1[4:])
-    print(findPerson(input("  Search: ")))
+    print(findPerson(input("  Search: ").split('@')[0]))
     
 '''
 [2] Multi Search
