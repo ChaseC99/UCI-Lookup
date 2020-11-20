@@ -10,14 +10,30 @@ Person
         email - str
 '''
 class Person:
-    def __init__(self, name, netID, email, major):
-        self.name = name
-        self.netID = netID
-        self.email = email
-        self.major = major
+    def __init__(self, entry):
+        self.allInfo = entry
+        self._parse_entry()
+    
+    def _parse_entry(self):
+        entry = self.allInfo
+
+        # Get Name
+        self.name = str(entry['displayName']) if 'displayName' in entry else ''
+        
+        # Get UCINetID
+        self.netID = str(entry['uid']) if 'uid' in entry else ''
+
+        # Get Email
+        self.email = str(entry['mail']) if 'mail' in entry else ''
+
+        # Get Major
+        self.major = str(entry['major']) if 'major' in entry else ''
+
+        # Get Year
+        self.year = str(entry['uciStudentLevel']) if 'uciStudentLevel' in entry else ''
         
     def __str__(self):
-        return self.netID + ',' + self.name + ',' + self.email + ',' + self.major
+        return self.netID + ',' + self.name + ',' + self.email + ',' + self.major + ',' + self.year
     
 
 # INFORMATION RETRIEVAL
@@ -30,23 +46,7 @@ Entry To Person
     Return a Person
 '''
 def _entryToPerson(entry) -> Person:
-    # Get Name
-    if 'displayName' in entry: name = str(entry['displayName'])
-    else: name = ''
-    
-    # Get UCINetID
-    if 'uid' in entry: netID = str(entry['uid'])
-    else: netID = ''
-
-    # Get Email
-    if 'mail' in entry: email = str(entry['mail'])
-    else: email = ''
-
-    # Get Major
-    if 'major' in entry: major = str(entry['major'])
-    else: major = ''        
-    
-    return Person(name, netID, email, major)
+    return Person(entry)
 
 
 '''
@@ -166,7 +166,14 @@ def multiSearch(searches: [str]):
 '''
 def singleSearch():
     print(option1[4:])
-    print(findPerson(input("  Search: ").split('@')[0]))
+    person = findPerson(input("  Search: ").split('@')[0])
+    print(person)
+
+    displayAllInfo = input('\n  Show all info? [y/N]: ') in {'y', 'Y'}
+    if displayAllInfo:
+        print("Displaying all info. . .\n")
+        print(person.allInfo)
+
     
 '''
 [2] Multi Search
