@@ -8,6 +8,15 @@ Look up options include:
     [2] Multi Search - Look up multiple people at a time  
     [3] Multi Search From File - Look up multiple people from a file with a search querey on each line
 
+## Installation
+| Step | Instruction | Command |
+| --- | --- | --- |
+| 1 | Clone the repository | `git clone`  |
+| 2 | Navigate into the repo | `cd UCI-Lookup` |
+| 3 | Setup a virtual environment | `python3 -m venv env` |
+| 4 | Activate the virtual environment | `source env/bin/activate` |
+| 5 | Download ldap3 | `pip3 install ldap3` |
+
 ## Usage
 Start up the Python script with `python3 uci-lookup.py` and simply follow the command line prompts.
 
